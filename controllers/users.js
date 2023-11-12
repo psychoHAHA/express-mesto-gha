@@ -15,7 +15,7 @@ module.exports.getUsersById = (req, res) => {
 }
 
 module.exports.createUser = (req, res) => {
-  const { name, about } = req.body; // получим из объекта запроса имя и описание пользователя
+  const { name, about, avatar, email } = req.body // получим из объекта запроса имя и описание пользователя
 
-  user.create({ name, about }); // создадим документ на основе пришедших данных
-};
+  user.create({ name, about, avatar, email }) // создадим документ на основе пришедших данных
+}

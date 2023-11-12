@@ -1,11 +1,15 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const { PORT = 3000 } = process.env;
+const express = require("express")
+const mongoose = require("mongoose")
+const router = require('./routes')
+const { PORT = 3000 } = process.env
 
-const app = express();
+const app = express()
 
 app.listen(PORT, () => {
-    console.log(`App listening on port ${PORT}`)
+  console.log(`App listening on port ${PORT}`)
 })
 
-mongoose.connect('mongodb://localhost:27017/mestodb')
+app.use(express.json())
+app.use(router)
+
+mongoose.connect("mongodb://localhost:27017/mestodb")

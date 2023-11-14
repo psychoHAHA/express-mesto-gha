@@ -1,6 +1,6 @@
 import express, { json } from "express"
 import mongoose from "mongoose"
-import router from "./routes"
+import userRouter from "./routes/users.js"
 const app = express()
 
 const { PORT = 3000, MONGO_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env
@@ -20,7 +20,7 @@ app.use((req, res, next) => {
 });
 
 app.use(json())
-app.use('/', router)
+app.use('/', userRouter)
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`)

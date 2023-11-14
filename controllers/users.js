@@ -1,4 +1,4 @@
-import user from "../models/user"
+import user from "../models/user.js"
 
 export const getUsers = async (req, res) => {
   try {
@@ -13,19 +13,20 @@ export const getUsers = async (req, res) => {
 
 export const getUsersById = async (req, res) => {
   try {
-    const { userId } = req.params
-    const user = await user.findById(userId)
-    if (!user) {
+    console.log(req.params.id);
+    const userName = await user.findById(req.params.id)
+    console.log(userName);
+    if (!userName) {
       throw new Error("NotFound")
     }
-    res.status(200).send(user)
+    res.status(200).send(userName)
     console.log("getUserById")
   } catch (error) {
     if (error.message === "NotFound") {
       return res.status(404).send({ message: "Пользователь по id не найден" })
     }
 
-    if (error.name === "CastError") {
+    if (error.userName === "CastError") {
       return res.status(400).send({ message: "Передан не валидный id" })
     }
 
@@ -34,12 +35,20 @@ export const getUsersById = async (req, res) => {
 }
 
 export const createUser = async (req, res) => {
+  console.log(123);
   try {
-    console.log(req.body)
-    const newUser = await user(req.body)
+    const newUser = await new user(req.body)
 
     return res.status(201).send(await newUser.save())
   } catch (error) {
-    console.log(error)
+    if (error.name === "ValidationError") {
+      return res
+        .status(400)
+        .send({ message: "Ошибка валидации полей", ...error });
+    }
+
+    if (error.code === ERROR_CODE_DUPLICATE_MONGO) {
+      return res.status(409).send({ message: "Пользователь уже существует" });
+    }
   }
 }

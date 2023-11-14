@@ -1,4 +1,4 @@
-const user = require("../models/user")
+const user = require("../models/user.js")
 
 module.exports.getUsers = (req, res) => {
   user

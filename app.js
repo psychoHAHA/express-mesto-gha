@@ -1,7 +1,7 @@
 // import { createRequire } from "module";
 // const require = createRequire(import.meta.url);
 
-const express = require("express")
+const express = require('express')
 const mongoose = require('mongoose')
 const router = require("./routes/users")
 const { PORT = 3000 } = process.env

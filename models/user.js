@@ -1,16 +1,22 @@
-const mongoose = require("mongoose")
+import mongoose from "mongoose"
 
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
+    required: {
+      value: true,
+      message: 'Поле name является обязательным'
+    },
     minlength: 2,
     maxlength: 30,
     default: "Жак-Ив Кусто",
   },
   about: {
     type: String,
-    required: true,
+    required: {
+      value: true,
+      message: 'Поле about является обязательным'
+    },
     minlength: 2,
     maxlength: 30,
     default: "Исследователь",
@@ -25,4 +31,4 @@ const userSchema = new mongoose.Schema({
   },
 })
 
-module.exports = mongoose.model("user", userSchema)
+export default mongoose.model("user", userSchema)

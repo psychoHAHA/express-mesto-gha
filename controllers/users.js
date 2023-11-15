@@ -13,14 +13,15 @@ export const getUsers = async (req, res) => {
 
 export const getUsersById = async (req, res) => {
   try {
-    console.log(req.params.id);
+    console.log(req.params.id)
     const userName = await user.findById(req.params.id)
-    console.log(userName);
+    console.log(userName)
+
     if (!userName) {
       throw new Error("NotFound")
     }
     res.status(200).send(userName)
-    console.log("getUserById")
+    
   } catch (error) {
     if (error.message === "NotFound") {
       return res.status(404).send({ message: "Пользователь по id не найден" })
@@ -35,7 +36,6 @@ export const getUsersById = async (req, res) => {
 }
 
 export const createUser = async (req, res) => {
-  console.log(123);
   try {
     const newUser = await new user(req.body)
 
@@ -44,11 +44,45 @@ export const createUser = async (req, res) => {
     if (error.name === "ValidationError") {
       return res
         .status(400)
-        .send({ message: "Ошибка валидации полей", ...error });
+        .send({ message: "Ошибка валидации полей", ...error })
     }
 
     if (error.code === ERROR_CODE_DUPLICATE_MONGO) {
-      return res.status(409).send({ message: "Пользователь уже существует" });
+      return res.status(409).send({ message: "Пользователь уже существует" })
     }
+  }
+}
+
+export const updateUser = async (req, res, next) => {
+  try {
+    const { name, about } = req.body
+    const updatingUser = await user.findByIdAndUpdate(
+      req.user._id, { name, about }
+    )
+
+    if (!updateUser) {
+      throw new NotFoundError('Пользователь с данным id не найден')
+    }
+
+    res.send(updatingUser)
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const updateAvatar = async (req, res, next) => {
+  try {
+    const { avatar } = req.body
+    const updatingAvatar = await user.findByIdAndUpdate(
+      req.user._id, { avatar }
+    )
+
+    if (!user) {
+      throw new NotFoundError('Пользователь с данным id не найден')
+    }
+
+    res.send(updatingAvatar)
+  } catch (error) {
+    next(error)
   }
 }

@@ -1,26 +1,29 @@
 import express, { json } from "express"
 import mongoose from "mongoose"
 import userRouter from "./routes/users.js"
+import cardRouter from "./routes/cards.js"
 const app = express()
 
-const { PORT = 3000, MONGO_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env
+const { PORT = 3000, MONGO_URL = "mongodb://127.0.0.1:27017/mestodb" } =
+  process.env
 
 mongoose.connect(MONGO_URL)
 
-app.get('/', (req, res) => {
-  res.status(200).send({message: 'Hello'})
+app.get("/", (req, res) => {
+  res.status(200).send({ message: "Hello" })
 })
 
 app.use((req, res, next) => {
   req.user = {
-    _id: '5d8b8592978f8bd833ca8133' // вставьте сюда _id созданного в предыдущем пункте пользователя
-  };
+    _id: "5d8b8592978f8bd833ca8133", // вставьте сюда _id созданного в предыдущем пункте пользователя
+  }
 
-  next();
-});
+  next()
+})
 
 app.use(json())
-app.use('/', userRouter)
+app.use("/", userRouter)
+app.use("/", cardRouter)
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`)

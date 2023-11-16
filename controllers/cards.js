@@ -1,4 +1,3 @@
-const { models } = require('mongoose');
 const card = require('../models/card');
 
 const getCards = async (req, res) => {
@@ -50,7 +49,7 @@ const likeCard = async (req, res) => {
     const userCard = await card.findByIdAndUpdate(
       req.params.cardId,
       { $addToSet: { likes: req.user._id } },
-      { new: true }
+      { new: true },
     );
 
     if (!userCard) {
@@ -76,7 +75,7 @@ const dislikeCard = async (req, res) => {
     const userCard = await card.findByIdAndUpdate(
       req.params.cardId,
       { $pull: { likes: req.user._id } },
-      { new: true }
+      { new: true },
     );
 
     if (!userCard) {

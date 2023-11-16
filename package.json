@@ -11,7 +11,7 @@
   "keywords": [],
   "author": "Кирька",
   "license": "ISC",
-  "type": "module",
+  "type": "commonjs",
   "dependencies": {
     "dotenv": "^16.3.1",
     "eslint-config-airbnb-base": "^15.0.0",

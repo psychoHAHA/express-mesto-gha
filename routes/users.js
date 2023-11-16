@@ -1,18 +1,16 @@
-import { Router } from "express"
-import {
+const router = require('express').Router();
+const {
   createUser,
   getUsers,
   getUsersById,
   updateUser,
   updateAvatar,
-} from "../controllers/users"
+} = require('../controllers/users');
 
-const userRouter = Router()
+router.get('/users', getUsers);
+router.get('/users/:id', getUsersById);
+router.post('/users', createUser);
+router.patch('/users/me', updateUser);
+router.patch('/users/me/avatar', updateAvatar);
 
-userRouter.get("/users", getUsers)
-userRouter.get("/users/:id", getUsersById)
-userRouter.post("/users", createUser)
-userRouter.patch("/users/me", updateUser)
-userRouter.patch("/users/me/avatar", updateAvatar)
-
-export default userRouter
+module.exports = router;

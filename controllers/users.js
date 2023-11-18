@@ -24,7 +24,7 @@ const getUsersById = async (req, res) => {
       return res.status(404).send({ message: 'Пользователь по id не найден' });
     }
 
-    if (error.userName === 'CastError') {
+    if (error.name === 'CastError') {
       return res.status(400).send({ message: 'Передан не валидный id' });
     }
 
@@ -71,7 +71,7 @@ const updateUser = async (req, res) => {
       return res.status(404).send({ message: 'Пользователь по id не найден' });
     }
 
-    if (error.userName === 'CastError') {
+    if (error.name === 'CastError') {
       return res.status(400).send({ message: 'Передан не валидный id' });
     }
 
@@ -100,7 +100,7 @@ const updateAvatar = async (req, res) => {
       return res.status(404).send({ message: 'Пользователь по id не найден' });
     }
 
-    if (error.userName === 'CastError') {
+    if (error.name === 'CastError') {
       return res.status(400).send({ message: 'Передан не валидный id' });
     }
 

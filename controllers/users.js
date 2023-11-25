@@ -1,4 +1,6 @@
+const bcrypt = require('bcryptjs');
 const user = require('../models/user');
+const generateToken = require('../utils/jwt');
 
 const getUsers = async (req, res) => {
   try {
@@ -32,11 +34,37 @@ const getUsersById = async (req, res) => {
   }
 };
 
-const createUser = async (req, res) => {
+const getUsersInfo = async (req, res, next) => {
   try {
-    const newUser = await new user(req.body);
+    const userName = await user
+      .findById(req.body._id)
+      .orFail(() => new Error('Пользователь с указанным id не найден'));
+    res.status(200).send(userName);
+  } catch (error) {
+    next(error);
+  }
+};
 
-    return res.status(201).send(await newUser.save());
+const createUser = async (req, res) => {
+  const { name, about, avatar, email, password } = req.body;
+  try {
+    const passwordHash = await bcrypt.hash(password, 10);
+    const userName = await user.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: passwordHash,
+    });
+
+    res.status(200).send({
+      user: {
+        name: userName.name,
+        about: userName.about,
+        avatar: userName.avatar,
+        email: userName.email,
+      },
+    });
   } catch (error) {
     if (error.name === 'ValidationError') {
       return res
@@ -58,7 +86,7 @@ const updateUser = async (req, res) => {
         name,
         about,
       },
-      { new: true, runValidators: true },
+      { new: true, runValidators: true }
     );
 
     if (!updateUser) {
@@ -87,7 +115,7 @@ const updateAvatar = async (req, res) => {
       {
         avatar,
       },
-      { new: true, runValidators: true },
+      { new: true, runValidators: true }
     );
 
     if (!user) {
@@ -108,10 +136,49 @@ const updateAvatar = async (req, res) => {
   }
 };
 
+const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const userName = await user
+      .findOne({ email })
+      .select('+password')
+      .orFail(() => new Error('NotAutanticate'));
+
+    const matched = await bcrypt.compare(String(password), userName.password);
+
+    if (!matched) {
+      throw new Error('NotAutanticate');
+    }
+
+    const token = generateToken({
+      _id: userName._id,
+      email: userName.password,
+    });
+    res.cookie('jwt', token, {
+      httpOnly: true,
+      sameSite: true,
+      maxAge: 36000 * 24 * 7,
+    });
+
+    res.send({ email: userName.email });
+  } catch (error) {
+    if (error.message === 'NotAutanticate') {
+      return res
+        .status(401)
+        .send({ message: 'Неправильные email или password' });
+    }
+
+    return res.status(500).send(error);
+  }
+};
+
 module.exports = {
   getUsers,
   getUsersById,
+  getUsersInfo,
   createUser,
   updateUser,
   updateAvatar,
+  login,
 };

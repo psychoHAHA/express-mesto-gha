@@ -2,36 +2,24 @@ const jwt = require('jsonwebtoken');
 
 const { JWT_SECRET, NODE_ENV } = process.env;
 
-// const handleAuthError = (res) => {
-//   res.status(401).send({ message: 'Необходима авторизация' });
-// };
-
-// const extractBearerToken = (header) => {
-//   return header.replace('Bearer ', '');
-// };
-
-// const auth = (req, res, next) => {
-
-// }
-
 module.exports = (req, res, next) => {
   let payload;
   try {
     const token = req.cookies;
     if (!token) {
-      throw new Error('Необходима авторизация');
+      throw new Error('NotAutanticate');
     }
 
     const validToken = token.replace('Bearer', '');
     payload = jwt.verify(validToken, NODE_ENV ? JWT_SECRET : 'dev_secret');
   } catch (error) {
-    if (error.message === 'Необходима авторизация') {
+    if (error.message === 'NotAutanticate') {
       return res
         .status(401)
-        .send({ message: 'Не правильные email или password' });
+        .send({ message: 'Неправильные email или password' });
     }
 
-    if (error.name === 'JsonWebToken') {
+    if (error.name === 'JsonWebTokenError') {
       return res.status(401).send({ message: 'С токеном что-то не так' });
     }
 

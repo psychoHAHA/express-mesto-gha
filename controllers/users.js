@@ -2,6 +2,8 @@ const bcrypt = require('bcryptjs');
 const user = require('../models/user');
 const generateToken = require('../utils/jwt');
 
+const MONGO_DUPLICATE_ERROR_CODE = 11000;
+
 const getUsers = async (req, res) => {
   try {
     const users = await user.find({});
@@ -66,6 +68,13 @@ const createUser = async (req, res) => {
       },
     });
   } catch (error) {
+    if (error.code === MONGO_DUPLICATE_ERROR_CODE) {
+      return res.status(409).send({
+        message: 'Такой пользователь уже существует',
+        errorCode: error.code,
+      });
+    }
+
     if (error.name === 'ValidationError') {
       return res
         .status(400)
@@ -115,7 +124,7 @@ const updateAvatar = async (req, res) => {
       {
         avatar,
       },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!user) {
@@ -153,15 +162,15 @@ const login = async (req, res) => {
 
     const token = generateToken({
       _id: userName._id,
-      email: userName.password,
+      email: userName.email,
     });
     res.cookie('jwt', token, {
       httpOnly: true,
       sameSite: true,
-      maxAge: 36000 * 24 * 7,
+      maxAge: 360000,
     });
 
-    res.send({ email: userName.email });
+    res.send({ token: token });
   } catch (error) {
     if (error.message === 'NotAutanticate') {
       return res

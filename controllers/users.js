@@ -2,37 +2,36 @@ const bcrypt = require('bcryptjs');
 const user = require('../models/user');
 const generateToken = require('../utils/jwt');
 
+const ErrorNotFound = require('../errors/errorNotFound');
+const ErrorValidation = require('../errors/errorValidation');
+const ErrorConflict = require('../errors/errorConflict');
+const ErrorAuth = require('../errors/errorAuth');
+
 const MONGO_DUPLICATE_ERROR_CODE = 11000;
 
-const getUsers = async (req, res) => {
+const getUsers = async (req, res, next) => {
   try {
     const users = await user.find({});
     return res.send(users);
   } catch (error) {
-    return res
-      .status(500)
-      .send({ message: 'Server side error', error: error.message });
+    next(error);
   }
 };
 
-const getUsersById = async (req, res) => {
+const getUsersById = async (req, res, next) => {
   try {
     const userName = await user.findById(req.params.id);
 
     if (!userName) {
-      throw new Error('NotFound');
+      throw new ErrorNotFound('NotFound');
     }
     res.status(200).send(userName);
   } catch (error) {
-    if (error.message === 'NotFound') {
-      return res.status(404).send({ message: 'Пользователь по id не найден' });
-    }
-
     if (error.name === 'CastError') {
-      return res.status(400).send({ message: 'Передан не валидный id' });
+      next(new ErrorValidation('Ошибка валидации полей'));
     }
 
-    return res.status(500).send({ message: 'Ошибка на стороне сервера' });
+    next(error);
   }
 };
 
@@ -47,7 +46,7 @@ const getUsersInfo = async (req, res, next) => {
   }
 };
 
-const createUser = async (req, res) => {
+const createUser = async (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
   try {
     const passwordHash = await bcrypt.hash(password, 10);
@@ -69,24 +68,18 @@ const createUser = async (req, res) => {
     });
   } catch (error) {
     if (error.code === MONGO_DUPLICATE_ERROR_CODE) {
-      return res.status(409).send({
-        message: 'Такой пользователь уже существует',
-        errorCode: error.code,
-      });
+      next(new ErrorConflict('Такой пользователь уже существует'));
     }
 
-    if (error.name === 'ValidationError') {
-      return res
-        .status(400)
-        .send({ message: 'Ошибка валидации полей', ...error });
+    if (error.name === 'CastError') {
+      next(new ErrorValidation('Ошибка валидации полей'));
     }
-    return res
-      .status(500)
-      .send({ message: 'Произошла ошибка', error: error.message });
+
+    next(error);
   }
 };
 
-const updateUser = async (req, res) => {
+const updateUser = async (req, res, next) => {
   try {
     const { name, about } = req.body;
     const updatingUser = await user.findByIdAndUpdate(
@@ -105,18 +98,18 @@ const updateUser = async (req, res) => {
     res.send(updatingUser);
   } catch (error) {
     if (error.message === 'NotFound') {
-      return res.status(404).send({ message: 'Пользователь по id не найден' });
+      next(new ErrorNotFound('Пользователь по ID не найден'));
     }
 
     if (error.name === 'CastError') {
-      return res.status(400).send({ message: 'Передан не валидный id' });
+      next(new ErrorValidation('Ошибка валидации полей'));
     }
 
     return res.status(500).send({ message: 'Ошибка на стороне сервера' });
   }
 };
 
-const updateAvatar = async (req, res) => {
+const updateAvatar = async (req, res, next) => {
   try {
     const { avatar } = req.body;
     const updatingAvatar = await user.findByIdAndUpdate(
@@ -124,7 +117,7 @@ const updateAvatar = async (req, res) => {
       {
         avatar,
       },
-      { new: true, runValidators: true },
+      { new: true, runValidators: true }
     );
 
     if (!user) {
@@ -134,18 +127,18 @@ const updateAvatar = async (req, res) => {
     res.send(updatingAvatar);
   } catch (error) {
     if (error.message === 'NotFound') {
-      return res.status(404).send({ message: 'Пользователь по id не найден' });
+      next(new ErrorNotFound('Пользователь по ID не найден'));
     }
 
     if (error.name === 'CastError') {
-      return res.status(400).send({ message: 'Передан не валидный id' });
+      next(new ErrorValidation('Ошибка валидации полей'));
     }
 
-    return res.status(500).send({ message: 'Ошибка на стороне сервера' });
+    next(error);
   }
 };
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
@@ -173,9 +166,7 @@ const login = async (req, res) => {
     res.send({ token: token });
   } catch (error) {
     if (error.message === 'NotAutanticate') {
-      return res
-        .status(401)
-        .send({ message: 'Неправильные email или password' });
+      next(new ErrorAuth('Неправильные email или password'));
     }
 
     return res.status(500).send(error);

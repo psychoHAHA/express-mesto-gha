@@ -29,6 +29,8 @@ const getUsersById = async (req, res, next) => {
   } catch (error) {
     if (error.name === 'CastError') {
       next(new ErrorValidation('Ошибка валидации полей'));
+
+      return;
     }
 
     next(error);
@@ -39,7 +41,7 @@ const getUsersInfo = async (req, res, next) => {
   try {
     const userName = await user
       .findById(req.body._id)
-      .orFail(() => new Error('Пользователь с указанным id не найден'));
+      .orFail(() => new ErrorNotFound('Пользователь по ID не найден'));
     res.status(200).send(userName);
   } catch (error) {
     next(error);
@@ -71,7 +73,7 @@ const createUser = async (req, res, next) => {
       next(new ErrorConflict('Такой пользователь уже существует'));
     }
 
-    if (error.name === 'CastError') {
+    if (error.name === 'ValidationError') {
       next(new ErrorValidation('Ошибка валидации полей'));
     }
 
@@ -88,7 +90,7 @@ const updateUser = async (req, res, next) => {
         name,
         about,
       },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!updateUser) {
@@ -101,11 +103,11 @@ const updateUser = async (req, res, next) => {
       next(new ErrorNotFound('Пользователь по ID не найден'));
     }
 
-    if (error.name === 'CastError') {
+    if (error.name === 'ValidationError') {
       next(new ErrorValidation('Ошибка валидации полей'));
     }
 
-    return res.status(500).send({ message: 'Ошибка на стороне сервера' });
+    next(error);
   }
 };
 
@@ -117,7 +119,7 @@ const updateAvatar = async (req, res, next) => {
       {
         avatar,
       },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!user) {
@@ -130,7 +132,7 @@ const updateAvatar = async (req, res, next) => {
       next(new ErrorNotFound('Пользователь по ID не найден'));
     }
 
-    if (error.name === 'CastError') {
+    if (error.name === 'ValidationError') {
       next(new ErrorValidation('Ошибка валидации полей'));
     }
 

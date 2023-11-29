@@ -1,18 +1,19 @@
 const card = require('../models/card');
+const ErrorForbiden = require('../errors/errorForbidden');
+const ErrorValidation = require('../errors/errorValidation');
+const ErrorNotFound = require('../errors/errorNotFound');
 
-const getCards = async (req, res) => {
+const getCards = async (req, res, next) => {
   try {
     const cards = await card.find({});
 
     return res.send(cards);
   } catch (error) {
-    return res
-      .status(500)
-      .send({ message: 'Server side error', error: error.message });
+    next(error);
   }
 };
 
-const createCard = async (req, res) => {
+const createCard = async (req, res, next) => {
   try {
     const { name, link } = req.body;
     const ownerId = req.user;
@@ -21,34 +22,38 @@ const createCard = async (req, res) => {
     return res.status(201).send(await newCard.save());
   } catch (error) {
     if (error.name === 'ValidationError') {
-      return res.status(400).send({ message: 'Переданы не валидные данныые' });
+      next(new ErrorValidation('Ошибка валидации полей'));
     }
-    return res
-      .status(500)
-      .send({ message: 'Произошла ошибка', error: error.message });
+
+    next(error);
   }
 };
 
-const deleteCard = async (req, res) => {
+const deleteCard = async (req, res, next) => {
   try {
     const userId = req.params.cardId;
     const delCard = await card.findByIdAndDelete(userId);
+    const ownerId = req.user;
 
     if (!delCard) {
       throw new Error('NotFound');
     }
 
+    if (userId !== ownerId) {
+      throw new ErrorForbiden('Вы не можете удалить чужую карточку');
+    }
+
     return res.send(delCard);
   } catch (error) {
     if (error.name === 'ValidationError') {
-      return res.status(400).send({ message: 'Передан не валидный id' });
+      next(new ErrorValidation('Ошибка валидации полей'));
     }
 
-    return res.status(500).send({ error: error.message });
+    next(error);
   }
 };
 
-const likeCard = async (req, res) => {
+const likeCard = async (req, res, next) => {
   try {
     const userCard = await card.findByIdAndUpdate(
       req.params.cardId,
@@ -63,18 +68,20 @@ const likeCard = async (req, res) => {
     res.send(userCard);
   } catch (error) {
     if (error.message === 'NotFound') {
-      return res.status(404).send({ message: 'Пользователь по id не найден' });
+      next(new ErrorNotFound('Пользователь по ID не найден'));
     }
 
     if (error.name === 'CastError') {
-      return res.status(400).send({ message: 'Передан не валидный id' });
+      next(new ErrorValidation('Ошибка валидации полей'));
+
+      return;
     }
 
-    return res.status(500).send({ message: 'Ошибка на стороне сервера' });
+    next(error);
   }
 };
 
-const dislikeCard = async (req, res) => {
+const dislikeCard = async (req, res, next) => {
   try {
     const userCard = await card.findByIdAndUpdate(
       req.params.cardId,
@@ -89,12 +96,15 @@ const dislikeCard = async (req, res) => {
     res.send(userCard);
   } catch (error) {
     if (error.name === 'CastError') {
-      return res.status(400).send({ message: 'Передан не валидный id' });
+      next(new ErrorValidation('Ошибка валидации полей'));
+
+      return;
     }
     if (error.message === 'NotFound') {
-      return res.status(404).send({ message: 'Пользователь по id не найден' });
+      next(new ErrorNotFound('Пользователь по ID не найден'));
     }
-    return res.status(500).send({ message: 'Ошибка на стороне сервера' });
+
+    next(error);
   }
 };
 

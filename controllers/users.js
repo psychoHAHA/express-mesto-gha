@@ -23,7 +23,7 @@ const getUsersById = async (req, res, next) => {
     const userName = await user.findById(req.params.id);
 
     if (!userName) {
-      throw new ErrorNotFound('NotFound');
+      next(new ErrorNotFound('Пользователь по ID не найден'));
     }
     res.status(200).send(userName);
   } catch (error) {
@@ -40,7 +40,7 @@ const getUsersById = async (req, res, next) => {
 const getUsersInfo = async (req, res, next) => {
   try {
     const userName = await user
-      .findById(req.body._id)
+      .findById(req.user._id)
       .orFail(() => new ErrorNotFound('Пользователь по ID не найден'));
     res.status(200).send(userName);
   } catch (error) {
@@ -94,15 +94,11 @@ const updateUser = async (req, res, next) => {
     );
 
     if (!updateUser) {
-      throw new Error('NotFound');
+      next(new ErrorNotFound('Пользователь по ID не найден'));
     }
 
     res.send(updatingUser);
   } catch (error) {
-    if (error.message === 'NotFound') {
-      next(new ErrorNotFound('Пользователь по ID не найден'));
-    }
-
     if (error.name === 'ValidationError') {
       next(new ErrorValidation('Ошибка валидации полей'));
     }
@@ -123,15 +119,11 @@ const updateAvatar = async (req, res, next) => {
     );
 
     if (!user) {
-      throw new Error('NotFound');
+      next(new ErrorNotFound('Пользователь по ID не найден'));
     }
 
     res.send(updatingAvatar);
   } catch (error) {
-    if (error.message === 'NotFound') {
-      next(new ErrorNotFound('Пользователь по ID не найден'));
-    }
-
     if (error.name === 'ValidationError') {
       next(new ErrorValidation('Ошибка валидации полей'));
     }
@@ -152,26 +144,17 @@ const login = async (req, res, next) => {
     const matched = await bcrypt.compare(String(password), userName.password);
 
     if (!matched) {
-      throw new Error('NotAutanticate');
+      next(new ErrorAuth('Неправильные email или password'));
     }
 
     const token = generateToken({
       _id: userName._id,
       email: userName.email,
     });
-    res.cookie('jwt', token, {
-      httpOnly: true,
-      sameSite: true,
-      maxAge: 360000,
-    });
 
-    res.send({ token: token });
+    res.status(200).send({ token: token });
   } catch (error) {
-    if (error.message === 'NotAutanticate') {
-      next(new ErrorAuth('Неправильные email или password'));
-    }
-
-    return res.status(500).send(error);
+    next(error);
   }
 };
 

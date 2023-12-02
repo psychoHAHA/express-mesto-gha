@@ -6,10 +6,14 @@ const auth = require('../middlewares/auth');
 const { createUser, login } = require('../controllers/users');
 const ErrorNotFound = require('../errors/errorNotFound');
 
-router.post('/signup', createUser);
-router.post('/signin', login);
+const { userValidateAuth } = require('../middlewares/userValidation');
 
-router.use('/', auth, userRouter);
+router.post('/signup', userValidateAuth, createUser);
+router.post('/signin', userValidateAuth, login);
+
+router.use(auth);
+
+router.use('/', userRouter);
 router.use('/', cardRouter);
 router.use('*', () => {
   throw new ErrorNotFound('Запрашиваемый ресурс не найден');

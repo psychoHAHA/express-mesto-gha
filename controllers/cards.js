@@ -31,19 +31,16 @@ const createCard = async (req, res, next) => {
 
 const deleteCard = async (req, res, next) => {
   try {
-    const userId = req.params.cardId;
-    const delCard = await card.findByIdAndDelete(userId);
-    const ownerId = req.user;
+    const userId = req.user._id;
+    const cardId = req.params.cardId;
+    const findCard = await card.findById(cardId).orFail();
 
-    if (!delCard) {
-      throw new Error('NotFound');
-    }
-
-    if (userId !== ownerId) {
+    if (!findCard.owner.equals(userId)) {
       throw new ErrorForbiden('Вы не можете удалить чужую карточку');
+    } else {
+      const delCard = await card.deleteOne({_id: cardId }).orFail();
+      return res.send(delCard);
     }
-
-    return res.send(delCard);
   } catch (error) {
     if (error.name === 'ValidationError') {
       next(new ErrorValidation('Ошибка валидации полей'));
@@ -62,15 +59,11 @@ const likeCard = async (req, res, next) => {
     );
 
     if (!userCard) {
-      throw new Error('NotFound');
+      next(new ErrorNotFound('Карточка не найдена'));
     }
 
     res.send(userCard);
   } catch (error) {
-    if (error.message === 'NotFound') {
-      next(new ErrorNotFound('Пользователь по ID не найден'));
-    }
-
     if (error.name === 'CastError') {
       next(new ErrorValidation('Ошибка валидации полей'));
 
@@ -90,7 +83,7 @@ const dislikeCard = async (req, res, next) => {
     );
 
     if (!userCard) {
-      throw new Error('NotFound');
+      next(new ErrorNotFound('Карточка не найдена'));
     }
 
     res.send(userCard);
@@ -99,9 +92,6 @@ const dislikeCard = async (req, res, next) => {
       next(new ErrorValidation('Ошибка валидации полей'));
 
       return;
-    }
-    if (error.message === 'NotFound') {
-      next(new ErrorNotFound('Пользователь по ID не найден'));
     }
 
     next(error);

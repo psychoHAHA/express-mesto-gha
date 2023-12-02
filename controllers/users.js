@@ -1,4 +1,4 @@
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 const user = require('../models/user');
 const generateToken = require('../utils/jwt');
 
@@ -139,7 +139,7 @@ const login = async (req, res, next) => {
     const userName = await user
       .findOne({ email })
       .select('+password')
-      .orFail(() => new Error('NotAutanticate'));
+      .orFail(() => new ErrorAuth('Неправильные email или password'));
 
     const matched = await bcrypt.compare(String(password), userName.password);
 

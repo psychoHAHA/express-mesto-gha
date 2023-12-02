@@ -21,13 +21,16 @@ const getUsers = async (req, res, next) => {
 const getUsersById = async (req, res, next) => {
   try {
     const userName = await user.findById(req.params.id);
+
     if (!userName) {
-      throw new ErrorNotFound('Пользователь по ID не найден');
+      next(new ErrorNotFound('Пользователь по ID не найден'));
     }
     res.status(200).send(userName);
   } catch (error) {
     if (error.name === 'CastError') {
-      throw new ErrorValidation('Ошибка валидации полей');
+      next(new ErrorValidation('Ошибка валидации полей'));
+
+      return;
     }
 
     next(error);
@@ -40,12 +43,12 @@ const getUsersInfo = async (req, res, next) => {
       .findById(req.user._id);
 
     if (!userName) {
-      throw new ErrorNotFound('Пользователь по ID не найден');
+      next(new ErrorNotFound('Пользователь по ID не найден'));
     }
     res.send(userName);
   } catch (error) {
     if (error.name === 'CastError') {
-      throw new ErrorValidation('Ошибка валидации полей');
+      next(new ErrorValidation('Переданы невалидные данные'));
     }
     next(error);
   }
@@ -73,11 +76,11 @@ const createUser = async (req, res, next) => {
     });
   } catch (error) {
     if (error.code === MONGO_DUPLICATE_ERROR_CODE) {
-      throw new ErrorConflict('Такой пользователь уже существует');
+      next(new ErrorConflict('Такой пользователь уже существует'));
     }
 
     if (error.name === 'ValidationError') {
-      throw new ErrorValidation('Ошибка валидации полей');
+      next(new ErrorValidation('Ошибка валидации полей'));
     }
 
     next(error);
@@ -97,13 +100,13 @@ const updateUser = async (req, res, next) => {
     );
 
     if (!updatingUser) {
-      throw new ErrorNotFound('Пользователь по ID не найден');
+      next(new ErrorNotFound('Пользователь по ID не найден'));
     }
 
     res.send(updatingUser);
   } catch (error) {
     if (error.name === 'ValidationError') {
-      throw new ErrorValidation('Ошибка валидации полей');
+      next(new ErrorValidation('Ошибка валидации полей'));
     }
 
     next(error);
@@ -122,13 +125,13 @@ const updateAvatar = async (req, res, next) => {
     );
 
     if (!user) {
-      throw new ErrorNotFound('Пользователь по ID не найден');
+      next(new ErrorNotFound('Пользователь по ID не найден'));
     }
 
     res.send(updatingAvatar);
   } catch (error) {
     if (error.name === 'ValidationError') {
-      throw new ErrorValidation('Ошибка валидации полей');
+      next(new ErrorValidation('Ошибка валидации полей'));
     }
 
     next(error);
@@ -147,7 +150,7 @@ const login = async (req, res, next) => {
     const matched = await bcrypt.compare(String(password), userName.password);
 
     if (!matched) {
-      throw new ErrorAuth('Неправильные email или password');
+      next(new ErrorAuth('Неправильные email или password'));
     }
 
     const token = generateToken({

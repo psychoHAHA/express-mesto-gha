@@ -22,7 +22,7 @@ const createCard = async (req, res, next) => {
     return res.status(201).send(await newCard.save());
   } catch (error) {
     if (error.name === 'ValidationError') {
-      throw new ErrorValidation('Ошибка валидации полей');
+      next(new ErrorValidation('Ошибка валидации полей'));
     }
 
     next(error);
@@ -43,7 +43,7 @@ const deleteCard = async (req, res, next) => {
     }
   } catch (error) {
     if (error.name === 'ValidationError') {
-      throw new ErrorValidation('Ошибка валидации полей');
+      next(new ErrorValidation('Ошибка валидации полей'));
     }
 
     next(error);
@@ -59,13 +59,15 @@ const likeCard = async (req, res, next) => {
     );
 
     if (!userCard) {
-      throw new ErrorNotFound('Карточка не найдена');
+      next(new ErrorNotFound('Карточка не найдена'));
     }
 
     res.send(userCard);
   } catch (error) {
     if (error.name === 'CastError') {
-      throw new ErrorValidation('Ошибка валидации полей');
+      next(new ErrorValidation('Ошибка валидации полей'));
+
+      return;
     }
 
     next(error);
@@ -81,13 +83,15 @@ const dislikeCard = async (req, res, next) => {
     );
 
     if (!userCard) {
-      throw new ErrorNotFound('Карточка не найдена');
+      next(new ErrorNotFound('Карточка не найдена'));
     }
 
     res.send(userCard);
   } catch (error) {
     if (error.name === 'CastError') {
-      throw new ErrorValidation('Ошибка валидации полей');
+      next(new ErrorValidation('Ошибка валидации полей'));
+
+      return;
     }
 
     next(error);

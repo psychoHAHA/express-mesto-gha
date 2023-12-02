@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const isEmail = require('validator/lib/isEmail');
 
-const isURL = require('validator/lib/isUrl');
+const { URLRegExpression } = require('../utils/constants');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -19,12 +19,9 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
+    match: [URLRegExpression, 'Некорректная ссылка'],
     default:
       'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
-    validate: {
-      validator: (v) => isURL(v),
-      message: 'Неправильный URL адрес',
-    },
   },
   email: {
     type: String,

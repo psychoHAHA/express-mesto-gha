@@ -44,14 +44,11 @@ const getUsersInfo = async (req, res, next) => {
 
     if (!userName) {
       next(new ErrorNotFound('Пользователь по ID не найден'));
-    } else {
-      res.send(userName);
     }
+    res.send(userName);
   } catch (error) {
     if (error.name === 'CastError') {
       next(new ErrorValidation('Переданы невалидные данные'));
-
-      return;
     }
     next(error);
   }

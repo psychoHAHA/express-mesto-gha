@@ -47,6 +47,9 @@ const getUsersInfo = async (req, res, next) => {
     }
     res.send(userName);
   } catch (error) {
+    if (error.name === 'CastError') {
+      next(new ErrorValidation('Переданы невалидные данные'));
+    }
     next(error);
   }
 };

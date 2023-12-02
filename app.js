@@ -19,13 +19,11 @@ app.use(helmet());
 mongoose.connect(MONGO_URL);
 
 app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 app.use(router);
 
 app.use(errors());
 
 app.use(errorHandle);
 
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
-});
+app.listen(PORT, () => {});

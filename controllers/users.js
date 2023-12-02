@@ -93,7 +93,7 @@ const updateUser = async (req, res, next) => {
       { new: true, runValidators: true },
     );
 
-    if (!updateUser) {
+    if (!updatingUser) {
       next(new ErrorNotFound('Пользователь по ID не найден'));
     }
 

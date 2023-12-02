@@ -59,7 +59,7 @@ const likeCard = async (req, res, next) => {
     );
 
     if (!userCard) {
-      next(new ErrorNotFound('Карточка не найдена'));
+      throw new ErrorNotFound('Карточка не найдена');
     }
 
     res.send(userCard);
@@ -83,7 +83,7 @@ const dislikeCard = async (req, res, next) => {
     );
 
     if (!userCard) {
-      next(new ErrorNotFound('Карточка не найдена'));
+      throw new ErrorNotFound('Карточка не найдена');
     }
 
     res.send(userCard);

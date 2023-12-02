@@ -23,6 +23,7 @@
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^6.10.0",
+    "validator": "^13.11.0",
     "validator-js": "^0.2.1"
   },
   "devDependencies": {

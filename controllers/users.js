@@ -23,7 +23,7 @@ const getUsersById = async (req, res, next) => {
     const userName = await user.findById(req.params.id);
 
     if (!userName) {
-      next(new ErrorNotFound('Пользователь по ID не найден'));
+      throw new ErrorNotFound('Пользователь по ID не найден');
     }
     res.status(200).send(userName);
   } catch (error) {

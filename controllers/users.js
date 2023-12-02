@@ -40,9 +40,12 @@ const getUsersById = async (req, res, next) => {
 const getUsersInfo = async (req, res, next) => {
   try {
     const userName = await user
-      .findById(req.user._id)
-      .orFail(() => new ErrorNotFound('Пользователь по ID не найден'));
-    res.status(200).send(userName);
+      .findById(req.user._id);
+
+    if (!userName) {
+      next(new ErrorNotFound('Пользователь по ID не найден'));
+    }
+    res.send(userName);
   } catch (error) {
     next(error);
   }

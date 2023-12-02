@@ -54,7 +54,7 @@ const likeCard = async (req, res, next) => {
   try {
     const userCard = await card.findByIdAndUpdate(
       req.params.cardId,
-      { $addToSet: { likes: req.user.id } },
+      { $addToSet: { likes: req.user._id } },
       { new: true },
     );
 
@@ -62,7 +62,7 @@ const likeCard = async (req, res, next) => {
       throw new ErrorNotFound('Карточка не найдена');
     }
 
-    res.send(userCard);
+    res.status(200).send(userCard);
   } catch (error) {
     if (error.name === 'CastError') {
       next(new ErrorValidation('Ошибка валидации полей'));

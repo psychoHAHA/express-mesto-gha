@@ -12,7 +12,7 @@ const MONGO_DUPLICATE_ERROR_CODE = 11000;
 const getUsers = async (req, res, next) => {
   try {
     const users = await user.find({});
-    return res.send(users);
+    res.send(users);
   } catch (error) {
     next(error);
   }
@@ -55,7 +55,9 @@ const getUsersInfo = async (req, res, next) => {
 };
 
 const createUser = async (req, res, next) => {
-  const { name, about, avatar, email, password } = req.body;
+  const {
+    name, about, avatar, email, password,
+} = req.body;
   try {
     const passwordHash = await bcrypt.hash(password, 10);
     const userName = await user.create({
@@ -158,7 +160,7 @@ const login = async (req, res, next) => {
       email: userName.email,
     });
 
-    res.status(200).send({ token: token });
+    res.status(200).send({ jwt: token });
   } catch (error) {
     next(error);
   }

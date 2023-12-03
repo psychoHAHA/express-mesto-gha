@@ -43,7 +43,7 @@ const getUsersInfo = async (req, res, next) => {
       .findById(req.user._id);
 
     if (!userName) {
-      next(new ErrorNotFound('Пользователь по ID не найден'));
+      throw new ErrorNotFound('Пользователь по ID не найден');
     }
     res.send(userName);
   } catch (error) {
@@ -102,7 +102,7 @@ const updateUser = async (req, res, next) => {
     );
 
     if (!updatingUser) {
-      next(new ErrorNotFound('Пользователь по ID не найден'));
+      throw new ErrorNotFound('Пользователь по ID не найден');
     }
 
     res.send(updatingUser);
@@ -127,7 +127,7 @@ const updateAvatar = async (req, res, next) => {
     );
 
     if (!user) {
-      next(new ErrorNotFound('Пользователь по ID не найден'));
+      throw new ErrorNotFound('Пользователь по ID не найден');
     }
 
     res.send(updatingAvatar);
@@ -152,7 +152,7 @@ const login = async (req, res, next) => {
     const matched = await bcrypt.compare(String(password), userName.password);
 
     if (!matched) {
-      next(new ErrorAuth('Неправильные email или password'));
+      throw new ErrorAuth('Неправильные email или password');
     }
 
     const token = generateToken({

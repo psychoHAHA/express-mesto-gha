@@ -7,7 +7,7 @@ const getCards = async (req, res, next) => {
   try {
     const cards = await card.find({});
 
-    return res.send(cards);
+    res.send(cards);
   } catch (error) {
     next(error);
   }
@@ -32,14 +32,14 @@ const createCard = async (req, res, next) => {
 const deleteCard = async (req, res, next) => {
   try {
     const userId = req.user._id;
-    const cardId = req.params.cardId;
-    const findCard = await card.findById(cardId).orFail(() => new ErrorNotFound('Карточка для удаления не найдена'));
+    const newCardId = req.params.cardId;
+    const findCard = await card.findById(newCardId).orFail(() => new ErrorNotFound('Карточка для удаления не найдена'));
 
     if (!findCard.owner.equals(userId)) {
       throw new ErrorForbiden('Вы не можете удалить чужую карточку');
     } else {
-      const delCard = await card.deleteOne({ _id: cardId });
-      return res.send(delCard);
+      const delCard = await card.deleteOne({ _id: newCardId });
+      res.send(delCard);
     }
   } catch (error) {
     if (error.name === 'ValidationError') {

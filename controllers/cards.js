@@ -36,7 +36,7 @@ const deleteCard = async (req, res, next) => {
     const findCard = await card.findById(cardId).orFail();
 
     if (!findCard.owner.equals(userId)) {
-      throw new ErrorForbiden('Вы не можете удалить чужую карточку');
+      next(new ErrorForbiden('Вы не можете удалить чужую карточку'));
     } else {
       const delCard = await card.deleteOne({ _id: cardId });
       return res.send(delCard);

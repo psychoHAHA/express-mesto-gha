@@ -4,7 +4,7 @@ const { URLRegExpression } = require('../utils/constants');
 
 module.exports.cardValidateId = (celebrate({
   params: Joi.object().keys({
-    _id: Joi.string().required().length(24).alphanum(),
+    id: Joi.string().required().length(24).alphanum(),
   }),
 }));
 
@@ -14,3 +14,15 @@ module.exports.cardValidateInfo = (celebrate({
     link: Joi.string().required().pattern(new RegExp(URLRegExpression)),
   }),
 }));
+
+module.exports.validateDeleteLikeCard = celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().length(24).hex().required(),
+  }),
+});
+
+module.exports.validatePutLikeCard = celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().length(24).hex().required(),
+  }),
+});

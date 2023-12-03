@@ -38,7 +38,7 @@ const deleteCard = async (req, res, next) => {
     if (!findCard.owner.equals(userId)) {
       throw new ErrorForbiden('Вы не можете удалить чужую карточку');
     } else {
-      const delCard = await card.deleteOne({ _id: cardId }).orFail();
+      const delCard = await card.deleteOne({ _id: cardId });
       return res.send(delCard);
     }
   } catch (error) {
@@ -60,11 +60,9 @@ const likeCard = async (req, res, next) => {
 
     if (!userCard) {
       throw new ErrorNotFound('Карточка не найдена');
-
-      return;
     }
 
-    res.send(userCard);
+    res.status(200).send(userCard);
   } catch (error) {
     if (error.name === 'CastError') {
       next(new ErrorValidation('Ошибка валидации полей'));

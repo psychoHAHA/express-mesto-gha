@@ -4,7 +4,7 @@ const { URLRegExpression } = require('../utils/constants');
 
 module.exports.cardValidateId = (celebrate({
   params: Joi.object().keys({
-    id: Joi.string().required().length(24).alphanum(),
+    _id: Joi.string().required().length(24).alphanum(),
   }),
 }));
 

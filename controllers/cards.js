@@ -60,6 +60,8 @@ const likeCard = async (req, res, next) => {
 
     if (!userCard) {
       throw new ErrorNotFound('Карточка не найдена');
+
+      return;
     }
 
     res.send(userCard);

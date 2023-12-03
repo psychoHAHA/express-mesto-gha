@@ -65,11 +65,9 @@ const likeCard = async (req, res, next) => {
   } catch (error) {
     if (error.name === 'CastError') {
       next(new ErrorValidation('Ошибка валидации полей'));
-
-      return;
+    } else {
+      next(error);
     }
-
-    next(error);
   }
 };
 

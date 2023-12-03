@@ -62,7 +62,7 @@ const likeCard = async (req, res, next) => {
       throw new ErrorNotFound('Карточка не найдена');
     }
 
-    res.status(200).send(userCard);
+    res.send(userCard);
   } catch (error) {
     if (error.name === 'CastError') {
       next(new ErrorValidation('Ошибка валидации полей'));

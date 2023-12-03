@@ -23,9 +23,8 @@ const createCard = async (req, res, next) => {
   } catch (error) {
     if (error.name === 'ValidationError') {
       next(new ErrorValidation('Ошибка валидации полей'));
-    }
-
-    next(error);
+    } else 
+      next(error);
   }
 };
 
@@ -36,7 +35,7 @@ const deleteCard = async (req, res, next) => {
     const findCard = await card.findById(cardId).orFail();
 
     if (!findCard.owner.equals(userId)) {
-      next(new ErrorForbiden('Вы не можете удалить чужую карточку'));
+      throw new ErrorForbiden('Вы не можете удалить чужую карточку');
     } else {
       const delCard = await card.deleteOne({ _id: cardId });
       return res.send(delCard);

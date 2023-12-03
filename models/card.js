@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { URLRegExpression } = require('../utils/constants');
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -9,6 +10,7 @@ const cardSchema = new mongoose.Schema({
   },
   link: {
     type: String,
+    match: [URLRegExpression, 'Некорректная ссылка'],
     required: true,
   },
   owner: {

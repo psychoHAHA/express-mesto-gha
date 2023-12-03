@@ -33,7 +33,9 @@ const deleteCard = async (req, res, next) => {
   try {
     const userId = req.user._id;
     const newCardId = req.params.cardId;
-    const findCard = await card.findById(newCardId).orFail(() => new ErrorNotFound('Карточка для удаления не найдена'));
+    const findCard = await card
+      .findById(newCardId)
+      .orFail(() => new ErrorNotFound('Карточка для удаления не найдена'));
 
     if (!findCard.owner.equals(userId)) {
       throw new ErrorForbiden('Вы не можете удалить чужую карточку');
@@ -55,7 +57,7 @@ const likeCard = async (req, res, next) => {
     const userCard = await card.findByIdAndUpdate(
       req.params.cardId,
       { $addToSet: { likes: req.user._id } },
-      { new: true },
+      { new: true }
     );
 
     if (!userCard) {
@@ -77,7 +79,7 @@ const dislikeCard = async (req, res, next) => {
     const userCard = await card.findByIdAndUpdate(
       req.params.cardId,
       { $pull: { likes: req.user._id } },
-      { new: true },
+      { new: true }
     );
 
     if (!userCard) {

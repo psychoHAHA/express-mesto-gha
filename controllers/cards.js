@@ -19,7 +19,7 @@ const createCard = async (req, res, next) => {
     const ownerId = req.user;
     const newCard = await card.create({ name, link, owner: ownerId });
 
-    return res.status(201).send(await newCard.save());
+    res.send(await newCard.save());
   } catch (error) {
     if (error.name === 'ValidationError') {
       next(new ErrorValidation('Ошибка валидации полей'));

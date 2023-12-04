@@ -75,9 +75,9 @@ const createUser = async (req, res, next) => {
       next(new ErrorConflict('Такой пользователь уже существует'));
     } else if (error.name === 'ValidationError') {
       next(new ErrorValidation('Ошибка валидации полей'));
+    } else {
+      next(error);
     }
-
-    next(error);
   }
 };
 

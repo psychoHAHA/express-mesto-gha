@@ -17,7 +17,7 @@ module.exports.validatePutLikeCard = celebrate({
 module.exports.validateCreateCard = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).required(),
-    link: Joi.string().pattern(URLRegExpression).required(),
+    link: Joi.string().pattern(new RegExp(URLRegExpression)).required(),
   }),
 });
 

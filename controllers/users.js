@@ -39,25 +39,19 @@ const getUsersById = async (req, res, next) => {
 
 const getUsersInfo = async (req, res, next) => {
   try {
-    const userName = await user
-      .findById(req.user._id);
+    const userName = await user.findById(req.user._id);
 
     if (!userName) {
       throw new ErrorNotFound('Пользователь по ID не найден');
     }
     res.send(userName);
   } catch (error) {
-    if (error.name === 'CastError') {
-      next(new ErrorValidation('Переданы невалидные данные'));
-    }
     next(error);
   }
 };
 
 const createUser = async (req, res, next) => {
-  const {
-    name, about, avatar, email, password,
-  } = req.body;
+  const { name, about, avatar, email, password } = req.body;
   try {
     const passwordHash = await bcrypt.hash(password, 10);
     const userName = await user.create({
@@ -79,9 +73,7 @@ const createUser = async (req, res, next) => {
   } catch (error) {
     if (error.code === MONGO_DUPLICATE_ERROR_CODE) {
       next(new ErrorConflict('Такой пользователь уже существует'));
-    }
-
-    if (error.name === 'ValidationError') {
+    } else if (error.name === 'ValidationError') {
       next(new ErrorValidation('Ошибка валидации полей'));
     }
 
@@ -98,7 +90,7 @@ const updateUser = async (req, res, next) => {
         name,
         about,
       },
-      { new: true, runValidators: true },
+      { new: true, runValidators: true }
     );
 
     if (!updatingUser) {
@@ -123,7 +115,7 @@ const updateAvatar = async (req, res, next) => {
       {
         avatar,
       },
-      { new: true, runValidators: true },
+      { new: true, runValidators: true }
     );
 
     if (!user) {

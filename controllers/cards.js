@@ -23,9 +23,9 @@ const createCard = async (req, res, next) => {
   } catch (error) {
     if (error.name === 'ValidationError') {
       next(new ErrorValidation('Ошибка валидации полей'));
+    } else {
+      next(error);
     }
-
-    next(error);
   }
 };
 
